@@ -1,0 +1,15 @@
+.DS_Store
+character-recognition/node_modules/
+character-recognition/dist/
+character-recognition-server/node_modules/
+character-recognition-server/dist/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Editor directories and files
+.idea
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
