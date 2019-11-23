@@ -54,10 +54,9 @@ router.get('/ocr', (req, res) => {
       console.log('数据库有access');
       // 数据库有access,对比时间
       let accessObj = accessList[0]
-      let accessTime = accessObj.createTime * 1 + accessObj.expires_in * 1
+      let accessTime = accessObj.createTime * 1 + accessObj.expires_in * 1000 //expires_in为秒,需要转成毫秒
       let nowTime = +new Date()
-      // let isExpired = nowTime > accessTime //access过期
-      let isExpired = true
+      let isExpired = nowTime > accessTime //access过期
       if (isExpired === true) {
         // 如果过期,从新请求并更新
         console.log('如果过期,从新请求并更新');
