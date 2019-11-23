@@ -1,6 +1,6 @@
 .DS_Store
-character-recognition/node_modules/
-character-recognition/dist/
+character-recognition-wx/node_modules/
+character-recognition-wx/dist/
 character-recognition-server/node_modules/
 character-recognition-server/dist/
 npm-debug.log*

@@ -3,9 +3,14 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
-
 var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
+var userRouter = require('./routes/user');
+var loginRouter = require('./routes/login');
+var registerRouter = require('./routes/register');
+var testRouter = require('./routes/test');
+var uploadRouter = require('./routes/upload');
+var bdAiRouter = require('./routes/bdAi');//百度ai
+const tokenTool = require('./utils/token.js')
 
 var app = express();
 
@@ -19,16 +24,49 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+//设置允许跨域访问该服务.
+app.all('*', function (req, res, next) {
+  res.header('Access-Control-Allow-Origin', '*');
+  //Access-Control-Allow-Headers ,可根据浏览器的F12查看,把对应的粘贴在这里就行
+  res.header('Access-Control-Allow-Headers', '*');
+  res.header('Access-Control-Allow-Methods', '*');
+  res.header('Content-Type', 'application/json;charset=utf-8');
+  next();
+});
+
+// 统一验证token
+app.use((req, res, next) => {
+  let { authorization } = req.headers
+  let { pathname } = req._parsedUrl
+  let freeUrls = ['/login', '/', '/register','upload'] //不需要验证token的接口地址
+  let isVerifyToken = freeUrls.indexOf(pathname) === -1 //是否需要验证token
+  if (authorization && isVerifyToken) {
+    let verifyToken = tokenTool.verifyToken(authorization)
+    if (verifyToken === "Token Invalid") {
+      res.send({ code: 1, msg: 'Token Invalid' })
+    } else {
+      next();
+    }
+  } else {
+    next();
+  }
+});
+
 app.use('/', indexRouter);
-app.use('/users', usersRouter);
+app.use('/user', userRouter);
+app.use('/login', loginRouter);
+app.use('/register', registerRouter);
+app.use('/test', testRouter);
+app.use('/upload', uploadRouter);
+app.use('/bdAi', bdAiRouter);
 
 // catch 404 and forward to error handler
-app.use(function(req, res, next) {
+app.use((req, res, next) => {
   next(createError(404));
 });
 
 // error handler
-app.use(function(err, req, res, next) {
+app.use((err, req, res, next) => {
   // set locals, only providing error in development
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
