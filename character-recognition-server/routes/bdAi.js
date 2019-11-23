@@ -1,8 +1,8 @@
-var express = require('express');
-var router = express.Router();
-var config = require('../config/index.js');
+const express = require('express');
+const router = express.Router();
+const config = require('../config/index.js');
 const AccessSchema = require('../db/models').AccessSchema
-const accessReq = require('../utils/access.js').accessReq
+const accessReq = require('../utils/access.js').accessReq //获取access方法
 
 router.get('/', (req, res) => {
   res.send({ code: 200, data: { msg: 'ok' } })

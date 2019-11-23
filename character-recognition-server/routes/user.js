@@ -1,5 +1,5 @@
-var express = require('express');
-var router = express.Router();
+const express = require('express');
+const router = express.Router();
 const tokenTool = require('../utils/token.js')
 const UserModel = require('../db/models').UserModel
 const filter = { password: 0, __v: 0 } // 查询时过滤出指定的属性
