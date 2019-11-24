@@ -66,11 +66,11 @@ export const setUrLParams = (obj = {}) => {
 }
 
 //  封装toast
-export const showToast = (title = "", icon = "none", duration = 2000) => {
+export const showToast = (title = "", duration = 2000, icon = "none") => {
   wx.showToast({
     title,
-    icon,
-    duration
+    duration,
+    icon
   })
 }
 

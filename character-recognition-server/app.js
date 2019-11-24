@@ -3,6 +3,7 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+var bodyParser = require('body-parser');
 var indexRouter = require('./routes/index');
 var userRouter = require('./routes/user');
 var loginRouter = require('./routes/login');
@@ -13,7 +14,9 @@ var bdAiRouter = require('./routes/bdAi');//百度ai
 const tokenTool = require('./utils/token.js')
 
 var app = express();
-
+// post载荷大小
+app.use(bodyParser.json({ limit: '50mb' }));
+app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
@@ -23,6 +26,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+
 
 //设置允许跨域访问该服务.
 app.all('*', function (req, res, next) {
