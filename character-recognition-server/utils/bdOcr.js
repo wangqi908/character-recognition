@@ -5,7 +5,7 @@ const qs = require('querystring');
 
 // 封装请求百度access方法
 const accessReq = () => {
-  const { grant_type, client_id, client_secret, hostname, path, agent } = config
+  const { grant_type, client_id, client_secret, bdHostname, accessPath, agent } = config
   const param = qs.stringify({
     grant_type,
     client_id,
@@ -13,8 +13,8 @@ const accessReq = () => {
   });
 
   const option = {
-    hostname,
-    path: path + param,
+    hostname: bdHostname,
+    path: accessPath + param,
     agent
   }
 
@@ -44,7 +44,7 @@ const getAccess = () => {
     const { grant_type, client_id, client_secret } = config
     if (!grant_type || !client_id || !client_secret) {
       // res.send({ code: 0, data: { msg: '缺少参数' } })
-      reject({ code: 0, data: { msg: '缺少参数' } })
+      resolve({ code: 0, data: { msg: '缺少参数' } })
       return
     }
 
@@ -68,14 +68,14 @@ const getAccess = () => {
         if (isExpired === true) {
           // 如果过期,从新请求并更新
           // console.log('如果过期,从新请求并更新');
-          accessReq.then(data => {
+          accessReq().then(data => {
             let { expires_in, access_token, refresh_token, session_key } = data
             let newData = { expires_in, access_token, refresh_token, session_key, updateTime: +new Date() }
             AccessSchema.findByIdAndUpdate(accessObj._id, newData, function (err, ret) {
               if (err) {
                 // console.log('更新失败')
                 // res.send({ code: 0, msg: '更新失败' })
-                reject({ msg: "更新失败", err })
+                resolve({ msg: "更新失败", err })
               } else {
                 resolve(newData)
                 // res.send({ code: 200, data: newData })
@@ -94,4 +94,44 @@ const getAccess = () => {
   })
 }
 
-exports.getAccess = getAccess;
+// 调用百度文字识别接口
+const ocrReq = (image = "") => {
+  return new Promise(async (resolve, reject) => {
+    const accessRes = await getAccess()
+    let post_data = {
+      access_token: accessRes.access_token,
+      image,
+    };//这是需要提交的数据 
+    let content = qs.stringify(post_data);
+    const { bdHostname, generalPath } = config
+    let options = {
+      hostname: bdHostname,
+      path: generalPath,
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+      }
+    };
+
+    let req = https.request(options, res => {
+      res.setEncoding('utf8');
+      res.on('data', function (chunk) {
+        // console.log('BODY: ' + chunk);
+        resolve(JSON.parse(chunk))
+      });
+    });
+
+    req.on('error', err => {
+      // console.log('problem with request: ' + e.message);
+      reject(err)
+    });
+
+    // 将数据写入请求体
+    req.write(content);//注意这个地方  
+
+    req.end();
+
+  })
+}
+
+exports.ocrReq = ocrReq;
