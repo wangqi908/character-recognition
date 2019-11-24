@@ -8,7 +8,7 @@
 </template>
 
 <script>
-import { loginReq } from "@/apis";
+import { loginReq, ocrReq } from "@/apis";
 export default {
   data() {
     return {
@@ -23,11 +23,11 @@ export default {
         count: 1,
         sourceType: ["album", "camera"],
         success: res => {
-          let base64 = wx
+          let base64img = wx
             .getFileSystemManager()
             .readFileSync(res.tempFilePaths[0], "base64");
-
-          console.log(base64);
+          // 获取文字识别
+          this.getOcr(base64img);
         }
       });
     },
@@ -36,6 +36,15 @@ export default {
       let sendData = { username, password };
       const res = await loginReq(sendData);
       console.log(res);
+    },
+    // 获取文字识别
+    async getOcr(image) {
+      let sendData = { image };
+      const res = await ocrReq(sendData);
+      if (res.data.code === 200) {
+        let resData = res.data.ocrRes;
+        console.log(resData);
+      }
     }
   },
 
